@@ -108,21 +108,43 @@ app.post("/cadastro", (req, res) => {
 
 // Pregramação de rotas do método GET do HTTP 'app.get()'
 app.get("/sobre", (req, res) => {
-  console.log("GET /sobre");
+  console.log("pages/sobre");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/sobre
-  res.render("sobre");
+  res.render("pages/sobre");
 });
 
 app.get("/login", (req, res) => {
-  console.log("GET /login");
+  console.log("pages/login");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/info
-  res.render("login");
+  res.render("pages/login");
 });
 
 app.post("/login", (req, res) => {
   console.log("POST /login");
   res.send("Login ainda não implementado.");
 });
+
+app.get("/dashboard", (req, res) => {
+  console.log("pages/dashboard");
+  res.render("pages/dashboard");
+})
+
+app.post("/cadastro",(req, res) => {
+  console.log("POST/ cadastro")
+
+  !req.body
+  ? console.log(`Body vazio: ${req.body} )
+  : console.log(JSON.stringify(req.body));
+
+  app.get("/usuarios", (req, res) => {
+    const query = "SELECT * FROM users";
+    db.all(query, (err, row) => {
+    console.log(`pages/usuarios ${JSON.stringify(row)});
+  res.render("Lista de usuários");
+})
+
+
+}
 
 // app.listen() deve ser o último comando da aplicação (app.js)
 app.listen(PORT, () => {
