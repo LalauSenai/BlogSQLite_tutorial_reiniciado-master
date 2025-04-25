@@ -1,4 +1,4 @@
-<table>
+<!-- <table>
     <thead>
         <tr scope="col">ID</tr>
         <tr scope="col">Nome</tr>
@@ -7,14 +7,20 @@
         </tr>
     </thead>
     <tbody>
+    <tr> -->
+        
+    <% for( let i = 1; i < 11; i++ ) { %> 
     <tr>
-        <td>1</td>
+        <td><p><%=i%></p></td>
         <td>NOME</td>
         <td>EMAIL</td>
         <td>CELULAR</td>
-        </tr>
-    <tr>
-        <td>2</td>
+    </tr>
+        <% } %>
+        </tbody>
+        </table>
+    
+        <!-- <td>2</td>
         <td>NOME</td>
         <td>EMAIL</td>
         <td>CELULAR</td>
@@ -27,4 +33,4 @@
         </tr>
     </tbody>
     
-</table>
+</table>  -->

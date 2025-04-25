@@ -4,6 +4,8 @@ const bodyParser = require("body-parser"); // Importa o body-parser
 
 const PORT = 9000; // Porta TCP do servidor HTTP da aplicação
 
+let config = { titulo: "", rodape: ""};
+
 const app = express(); // Instância para uso do Express
 
 // Cria conexão com obanco de dados
@@ -45,7 +47,9 @@ app.get("/", (req, res) => {
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/
   // res.send(index);
   console.log("GET /index");
-  res.render("index");
+
+  config = { titulo: "Blog da turma I2HNA - SESI Nova Odessa", rodape: "" };
+  res.render("pages/index, config");
   // res.redirect("/cadastro"); // Redireciona para a ROTA cadastro
 });
 
@@ -53,7 +57,7 @@ app.get("usuarios", (req, res) => {
   const query = "SELECT * FROM users";
   db.all(query, (err, row) => {
     console.log(`GET/usuarios ${JSON.stringify(row)}`);
-    res.send("Lista de usuarios.");
+    res.send("partials/usertable", config);
   });
 });
 
