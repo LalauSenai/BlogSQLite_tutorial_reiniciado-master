@@ -1,11 +1,19 @@
 const express = require("express"); // importa lib do Express
 const sqlite3 = require("sqlite3"); // Importa lib do sqlite3
 const bodyParser = require("body-parser"); // Importa o body-parser
-const session = require("express-session"); //Importa 0 express-session
+const session = require("express-session"); // Importa 0 express-session
 
-const PORT = 9000; // Porta TCP do servidor HTTP da aplicação
+const PORT = 8000; // Porta TCP do servidor HTTP da aplicação
 
-let config = { titulo: "", rodape: "" };
+// Variáveis usadas no EJS (padrão)
+let config = { titulo: "", rodape: "", dados: [] };
+
+// config.dados = [
+//   { username: "User 1", email: "x1@x.com", celular: "(19) 99999-9999" },
+//   { username: "User 2", email: "x2@x.com", celular: "(20) 99999-9999" },
+//   { username: "User 3", email: "x3@x.com", celular: "(21) 99999-9999" },
+//   { username: "User 4", email: "x4@x.com", celular: "(22) 99999-9999" },
+// ];
 
 const app = express(); // Instância para uso do Express
 
@@ -20,12 +28,12 @@ db.serialize(() => {
   );
 });
 
+// Configuração para uso de sessão (cookies) com Express
 app.use(
   session({
     secret: "qualquersenha",
     resave: true,
-    saveUnitialized: true,
-
+    saveUninitialized: true,
   })
 );
 
@@ -43,6 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Configurar EJS como o motor de visualização
 app.set("view engine", "ejs");
 
+
 const index =
   "<a href='/sobre'> Sobre </a><a href='/login'> Login </a><a href='/cadastro'> Cadastrar </a>";
 const sobre = "sobre";
@@ -56,18 +65,28 @@ const cadastro = 'Vc está na página "Cadastro"<br><a href="/">Voltar</a>';
 app.get("/", (req, res) => {
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/
   // res.send(index);
-  console.log("GET /index");
+  console.log(`GET /index`);
 
-  config = { titulo: "Blog da turma I2HNA - SESI Nova Odessa", rodape: "" };
-  res.render("pages/index", config);
+  config = {
+    titulo: "Blog da turma I2HNA - SESI Nova Odessa",
+    rodape: "",
+  };
+
+  // config.rodape = "1";
+  res.render("pages/index", { ...config, req: req });
   // res.redirect("/cadastro"); // Redireciona para a ROTA cadastro
 });
 
-app.get("usuarios", (req, res) => {
+app.get("/usuarios", (req, res) => {
   const query = "SELECT * FROM users";
   db.all(query, (err, row) => {
-    console.log(`GET/usuarios ${JSON.stringify(row)}`);
-    res.send("partials/usertable", config);
+    if (err) throw err;
+
+    console.log(`GET /usuarios ${JSON.stringify(row)}`);
+    // res.send("Lista de usuários.");
+    // config.dados = row;
+    // console.log(JSON.stringify(config.dados));
+    res.render("partials/usertable", { ...config, req: req });
   });
 });
 
@@ -75,7 +94,7 @@ app.get("usuarios", (req, res) => {
 app.get("/cadastro", (req, res) => {
   console.log("GET /cadastro");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/cadastro
-  res.render("cadastro");
+  res.render("pages/cadastro", { ...config, req: req });
 });
 
 // POST do cadastro
@@ -91,8 +110,11 @@ app.post("/cadastro", (req, res) => {
   // 1. Validar dados do usuário
   // 2. saber se ele já existe no banco
   const query =
-    "SELECT * FROM users WHERE email=? OR cpf=? OR rg=? OR username=?";
-  db.get(query, [email, cpf, rg, username], (err, row) => {
+    // "SELECT * FROM users WHERE email=? OR cpf=? OR rg=? OR username=?";
+    "SELECT * FROM users WHERE username=?";
+
+  // db.get(query, [email, cpf, rg, username], (err, row) => {
+  db.get(query, [username], (err, row) => {
     if (err) throw err;
     console.log(`LINHA RETORNADA do SELECT USER: ${JSON.stringify(row)}`);
     if (row) {
@@ -120,61 +142,70 @@ app.post("/cadastro", (req, res) => {
   // );
 });
 
-// Pregramação de rotas do método GET do HTTP 'app.get()'
+// Programação de rotas do método GET do HTTP 'app.get()'
 app.get("/sobre", (req, res) => {
-  console.log("pages/sobre");
+  console.log("GET /sobre");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/sobre
-  res.render("pages/sobre");
+  res.render("pages/sobre", { ...config, req: req });
+});
+
+app.get("/logout", (req, res) => {
+  console.log("GET /logout")
+  // Exemplo de uma rota (END POINT) controlado pela sessão do usuário logado.
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
 });
 
 app.get("/login", (req, res) => {
-  console.log("pages/login");
+  console.log("GET /login");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/info
-  res.render("pages/login");
+  res.render("pages/login", { ...config, req: req });
 });
 
 app.post("/login", (req, res) => {
   console.log("POST /login");
   const { username, password } = req.body;
 
-  //Consutar o usuarios no banco de dados 
-  const query = "SELECT * FROM users WHERE username = ? AND password";
+  // Consultar o usuario no banco de dados
+  const query = "SELECT * FROM users WHERE username = ? AND password = ?";
   db.get(query, [username, password], (err, row) => {
     if (err) throw err;
 
-    // Se usuario válido -> registra a sessão e redireciona para o dashboard
+    // Se usuário válido -> registra a sessão e redireciona para o dashboard
     if (row) {
       req.session.loggedin = true;
       req.session.username = username;
       res.redirect("/dashboard");
-      // Se não, envia mensagem de erro (Usuário invalido)
-    } else {
-      res.send("Usuário inválido");
+    } // Se não, envia mensagem de erro (Usuário inválido)
+    else {
+      res.send("Usuário inválido.");
     }
   });
 });
 
+// app.get("/teste", (res, req) => {
+//   res.redirect("/usuarios")
+// });
+
 app.get("/dashboard", (req, res) => {
-  console.log("pages/dashboard");
-  res.render("pages/dashboard");
-})
+  console.log("GET /dashboard");
+  console.log(JSON.stringify(config));
 
-app.post("/cadastro",(req, res) => {
-  console.log("POST/ cadastro")
+  if (req.session.loggedin) {
+    db.all("SELECT * FROM users", [], (err, row) => {
+      if (err) throw err;
+      res.render("pages/dashboard", { ...config, req: req });
+    });
+  } else {
+    console.log("Tentativa de acesso a àrea restrita");
+    res.redirect("/");
+  }
+});
 
-  !req.body
-  ? console.log(`Body vazio: ${req.body} )
-  : console.log(JSON.stringify(req.body));
-
-  app.get("/usuarios", (req, res) => {
-    const query = "SELECT * FROM users";
-    db.all(query, (err, row) => {
-    console.log(`pages/usuarios ${JSON.stringify(row)});
-  res.render("Lista de usuários");
-})
-
-
-}
+app.use('*', (req,res) => {
+  res.status(404).render('pages/404', {req: req});
+});
 
 // app.listen() deve ser o último comando da aplicação (app.js)
 app.listen(PORT, () => {
