@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
   console.log("GET /index");
 
   config = { titulo: "Blog da turma I2HNA - SESI Nova Odessa", rodape: "" };
-  res.render("pages/index, config");
+  res.render("pages/index", config);
   // res.redirect("/cadastro"); // Redireciona para a ROTA cadastro
 });
 
@@ -147,11 +147,11 @@ app.post("/login", (req, res) => {
       req.session.loggedin = true;
       req.session.username = username;
       res.redirect("/dashboard");
-// Se não, envia mensagem de erro (Usuário invalido)
-else {
-        res.send("Usuário inválido");
-      }
-    });
+      // Se não, envia mensagem de erro (Usuário invalido)
+    } else {
+      res.send("Usuário inválido");
+    }
+  });
 });
 
 app.get("/dashboard", (req, res) => {
