@@ -97,6 +97,16 @@ app.get("/cadastro", (req, res) => {
   res.render("pages/cadastro", { titulo: "CADASTRO", req: req });
 });
 
+app.get("/Usuariocadastrado", (req, res) => {
+  console.log("GET/Usuariocadastrado");
+  res.render("pages/Usuariocadastrado", { ...config, req: req });
+}) 
+
+app.get("/Usuarionaocadastrado", (req, res) => {
+  console.log("GET/Usuarionaocadastrado");
+  res.render("pages/Usuarionaocadastrado", { ...config, req: req });
+}) 
+
 // POST do cadastro
 app.post("/cadastro", (req, res) => {
   console.log("POST /cadastro");
@@ -120,7 +130,7 @@ app.post("/cadastro", (req, res) => {
     if (row) {
       // A variável 'row' irá retornar os dados do banco de dados,
       // executado através do SQL, variável query
-      res.send("Usuário já cadastrado, refaça o cadastro");
+      res.redirect("Usuarionaocadastrado");
     } else {
       // 3. Se usuário não existe no banco cadastrar
       const insertQuery =
@@ -131,7 +141,7 @@ app.post("/cadastro", (req, res) => {
         (err) => {
           // Inserir a lógica do INSERT
           if (err) throw err;
-          res.send("Usuário cadastrado, com sucesso");
+          res.redirect("/Usuariocadastrado");
         }
       );
     }
@@ -201,6 +211,10 @@ app.get("/dashboard", (req, res) => {
     res.redirect("/");
   }
 });
+
+app.use('*', (req, res) => {
+  res.status(404).render('pages/404', { ...config, req: req});
+})
 
 // app.listen() deve ser o último comando da aplicação (app.js)
 app.listen(PORT, () => {
