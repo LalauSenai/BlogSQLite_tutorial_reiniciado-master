@@ -3,7 +3,7 @@ const sqlite3 = require("sqlite3"); // Importa lib do sqlite3
 const bodyParser = require("body-parser"); // Importa o body-parser
 const session = require("express-session"); // Importa 0 express-session
 
-const PORT = 8000; // Porta TCP do servidor HTTP da aplicação
+const PORT = 9000; // Porta TCP do servidor HTTP da aplicação
 
 // Variáveis usadas no EJS (padrão)
 let config = { titulo: "", rodape: "", dados: [] };
@@ -73,7 +73,7 @@ app.get("/", (req, res) => {
   };
 
   // config.rodape = "1";
-  res.render("pages/index", { ...config, req: req });
+  res.render("pages/index", { titulo: config.titulo, req: req });
   // res.redirect("/cadastro"); // Redireciona para a ROTA cadastro
 });
 
@@ -86,7 +86,7 @@ app.get("/usuarios", (req, res) => {
     // res.send("Lista de usuários.");
     // config.dados = row;
     // console.log(JSON.stringify(config.dados));
-    res.render("partials/usertable", { ...config, req: req });
+    res.render("partials/usertable", { titulo: "USUÁRIOS", dados: row, req: req });
   });
 });
 
@@ -94,7 +94,7 @@ app.get("/usuarios", (req, res) => {
 app.get("/cadastro", (req, res) => {
   console.log("GET /cadastro");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/cadastro
-  res.render("pages/cadastro", { ...config, req: req });
+  res.render("pages/cadastro", { titulo: "CADASTRO", req: req });
 });
 
 // POST do cadastro
@@ -142,15 +142,14 @@ app.post("/cadastro", (req, res) => {
   // );
 });
 
-// Programação de rotas do método GET do HTTP 'app.get()'
+// Pregramação de rotas do método GET do HTTP 'app.get()'
 app.get("/sobre", (req, res) => {
   console.log("GET /sobre");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/sobre
-  res.render("pages/sobre", { ...config, req: req });
+  res.render("pages/sobre", { titulo: "SOBRE", req: req });
 });
 
 app.get("/logout", (req, res) => {
-  console.log("GET /logout")
   // Exemplo de uma rota (END POINT) controlado pela sessão do usuário logado.
   req.session.destroy(() => {
     res.redirect("/");
@@ -160,7 +159,7 @@ app.get("/logout", (req, res) => {
 app.get("/login", (req, res) => {
   console.log("GET /login");
   // Rota raiz do meu servidor, acesse o browser com o endereço http://localhost:8000/info
-  res.render("pages/login", { ...config, req: req });
+  res.render("pages/login", { titulo: "LOGIN", req: req });
 });
 
 app.post("/login", (req, res) => {
@@ -195,16 +194,12 @@ app.get("/dashboard", (req, res) => {
   if (req.session.loggedin) {
     db.all("SELECT * FROM users", [], (err, row) => {
       if (err) throw err;
-      res.render("pages/dashboard", { ...config, req: req });
+      res.render("pages/dashboard", { titulo: "DASHBOARD", dados: row, req: req });
     });
   } else {
     console.log("Tentativa de acesso a àrea restrita");
     res.redirect("/");
   }
-});
-
-app.use('*', (req,res) => {
-  res.status(404).render('pages/404', {req: req});
 });
 
 // app.listen() deve ser o último comando da aplicação (app.js)

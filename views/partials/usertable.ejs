@@ -1,49 +1,37 @@
-<!-- <table>
-    <thead>
-        <tr scope="col">ID</tr>
-        <tr scope="col">Nome</tr>
-        <tr scope="col">Email</tr>
-        <tr scope="col">Celular</tr>
-        </tr>
-    </thead>
-    <tbody>
-    <tr> -->
-        
-    <% for( let i = 1; i < 11; i++ ) { %>  
-        <% if (index % 3 == 0) { %>
+<% console.log(`usertable.ejs -> DADOS: ${JSON.stringify(dados)}`); %>
+<% if (req.session.loggedin) { %>
+<table>
+  <thead>
     <tr>
-        <td><p><%=i%></p></td>
-        <td>NOME</td>
-        <td>EMAIL</td>
-        <td>CELULAR</td>
+      <th scope="col">ID</th>
+      <th scope="col">Nome</th>
+      <th scope="col">Email</th>
+      <th scope="col">Celular</th>
+      <th scope="col">Senha</th>
     </tr>
-        <% } %>
-        <% } %>
-        </tbody>
-        </table>
+  </thead>
+  <tbody>
+    <%# for(index = 0; index < 9; index++ ) { %> <%# if (index % 3 == 0) { %>
 
-        <% let index=1; dados.forEach(user => { %> 
-        <tr <% req.session.username==user.username ? 'style="color: white; font-style: bold;"' : '' %>>
-            <td><%= user.id %></td>
-            <td><%= user.username %></td>
-            <td><%= user.email %></td>
-            <td><%= user.celular %></td>
-            <td><%= user.password%></td>
-        </tr>
-        })
-        
-    
-        <!-- <td>2</td>
-        <td>NOME</td>
-        <td>EMAIL</td>
-        <td>CELULAR</td>
-        </tr>
+    <% let index=1; dados.forEach(user => { %>
+    <tr <%- req.session.username==user.username ? `style="color: white; font-style: bold;"` : `` %>>
+      <td><%= user.id %></td>
+      <td><%= user.username %></td>
+      <td><%= user.email %></td>
+      <td><%= user.celular %></td>
+      <td><%= user.password %></td>
+    </tr>
+    <% index++; }); %>
+    <%# } %> <%# } %>
+  </tbody>
+  <tfoot>
     <tr>
-        <td>3</td>
-        <td>NOME</td>
-        <td>EMAIL</td>
-        <td>CELULAR</td>
-        </tr>
-    </tbody>
-    
-</table>  -->
+      <th colspan="5" style="font-size: 16px;"><%= `Usuários registrados: ${index-1}` %></th>
+    </tr>
+  </tfoot>
+</table>
+<% } else { %>
+<main style="padding: 20px; text-align: center; border: 10px solid red; background-color: tomato; font-size: 64px;border-radius: 150px;">
+  ACESSO RESTRITO!!!<br> VOCÊ FOI PARA O SAL!!!<br> A POLÍCIA FEDERAL IRÁ APARECER NA SUA CASA AMANHÃ!!!<br>
+</main>
+<% } %>
